@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from .forms import VideoForm
+from .forms import VideoForm, SearchForm
 from django.contrib import messages
 from .models import Video
-
+from django.db.models.functions import Lower
 
 # Create your views here.
 def home(request):
@@ -30,10 +30,18 @@ def add(request):
             messages.warning(request, 'Please check data entered!')
             return render(request, 'video_collection/add.html', {'new_video_form': new_video_form})
         
-            new_video_form = VideoForm()
-            return render(request, 'video_collection/add.html', {'new_video_form': new_video_form})
+    new_video_form = VideoForm()
+    return render(request, 'video_collection/add.html', {'new_video_form': new_video_form})
 
 def video_list(request):
-    videos = Video.objects.all()
-    return render(request, 'video_collection/video_list.html', {'videos':videos})
-    pass
+    search_form = SearchForm(request.GET)
+    if search_form.is_valid():
+        search_term = search_form.cleaned_data['search_term']
+        videos = Video.objects.filter(name__icontains=search_term).order_by(Lower('name'))
+    else:
+        search_form = SearchForm()
+        videos = Video.objects.all().order_by(Lower('name'))
+
+        
+    return render(request, 'video_collection/video_list.html', {'videos':videos, 'search_form':search_form})
+    

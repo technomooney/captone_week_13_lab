@@ -1,0 +1,12 @@
+.navigation {
+    margin: 10px;
+}
+
+.navigation > a {
+    color: lightgreen;
+    padding-right: 30px;
+}
+
+.navigation > a:hover {
+    color: dodgerblue;    
+}
